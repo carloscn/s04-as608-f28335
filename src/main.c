@@ -20,7 +20,7 @@ extern Uint16 RamfuncsLoadEnd;
 extern Uint16 RamfuncsRunStart;
 
 #endif
-#define                     INPUT             0
+#define                     INPUT             1
 
 Uint16 sdataA[8];    // Send data for SCI-A
 Uint16 sdataB[8];    // Send data for SCI-B
@@ -82,7 +82,6 @@ void main(void)
     // This function is found in DSP281x_InitPeripherals.c
     // InitPeripherals(); // Not required for this example
 
-
     AS608_INIT( as608_p );
     // Step 5. User specific code, enable interrupts:
 
@@ -107,11 +106,11 @@ void main(void)
     PieCtrlRegs.PIEIER9.bit.INTx1   =1;     // PIE Group 9, INT1
     PieCtrlRegs.PIEIER9.bit.INTx3   =1;     // PIE Group 9, INT1
     IER |= M_INT9; // Enable CPU INT
+    DELAY_MS(2000);
 
+    SCI_INIT();
     scic_msg("scic: 设备正在初始化，听到滴声后操作.... \n\r");
 
-    DELAY_MS(2000);
-    SCI_INIT();
     ERTM;   // Enable Global realtime interrupt DBGM
     // Enable global Interrupts and higher priority real-time debug events:
     EINT;   // Enable Global interrupt INTM

@@ -178,8 +178,8 @@ uint8    as608_search( AS608 *this ,uint8 buffer_id, uint16 start_page, uint16 p
 }
 
 uint8    as608_high_speed_search( AS608* this, uint8 id,
-                                 u16 start_page, u16 page_num,
-                                 SEARCH_RESULT *p  ) {
+                                  u16 start_page, u16 page_num,
+                                  SEARCH_RESULT *p  ) {
     uint16  check_sum;
     u8  ensure;
     u8  *data;
@@ -341,7 +341,7 @@ uint8    as608_write_reg( AS608 *this , uint8 reg_num, uint8 val) {
         //printf( "set para succussful.\n\r" );
 
     }else {
-       // printf("\r\n%s",this->ensure_message(this, ensure) );
+        // printf("\r\n%s",this->ensure_message(this, ensure) );
     }
     this->ensure_message(this, ensure);
     return ensure;
@@ -384,8 +384,8 @@ uint8    as608_read_sys_para( AS608 *this, SYS_PARA *p ) {
         //printf("\r\n波特率=%d",p->PS_N*9600);
     }
     else
-       // printf("\r\n%s",this->ensure_message(this,ensure));
-    this->ensure_message(this, ensure);
+        // printf("\r\n%s",this->ensure_message(this,ensure));
+        this->ensure_message(this, ensure);
     return ensure;
 }
 uint8    as608_set_addr( AS608 *this , uint32 addr) {
@@ -416,7 +416,7 @@ uint8    as608_set_addr( AS608 *this , uint32 addr) {
     this->device_address    =   addr;
     if(ensure == 0x00) {}
 
-        //printf("\r\n设置地址成功！");
+    //printf("\r\n设置地址成功！");
     else{
         this->ensure_message(this, ensure);
     }
@@ -446,10 +446,10 @@ uint8    as608_valid_templete_num( AS608 *this , uint16 *valid_n ) {
     }else
         ensure  =   0xFF;
     if(ensure==0x00){}
-        //printf("\r\n有效指纹个数=%d",(data[10]<<8)+data[11]);
+    //printf("\r\n有效指纹个数=%d",(data[10]<<8)+data[11]);
     else
         this->ensure_message(this, ensure);
-        //printf("\r\n%s", );
+    //printf("\r\n%s", );
     this->ensure_message(this, ensure);
     return ensure;
 }
@@ -484,87 +484,92 @@ void    as608_add_finger( AS608* this )
 {
     uint8   ensure, process_num = 0;
     uint16  id;
+    uint32 k;
 
     while( true ) {
+        k++;
+        if (k >= 600000) {
+            k = 0;
 
-        switch ( process_num ) {
+            switch ( process_num ) {
 
-        case 0:
-            scic_msg( "scic: 请按下指纹....\n\r" );
-            ensure = this->get_image(this);
-            if( ensure == 0x00 ) {
-                scic_msg( "scic: 得到一个指纹图像，生成特征中....\n\r" );
-                ensure  =   this->gen_char(this, CHAR_BUFFER_1);
-                if( ensure ==   0x00 ) {
-                    scic_msg( "scic: 指纹图像获取成功....\n\r" );
-                    process_num = 1;
+            case 0:
+                scic_msg( "scic: 请按下指纹。\n\r" );
+                ensure = this->get_image(this);
+                if( ensure == 0x00 ) {
+                    scic_msg( "scic: 得到一个指纹图像，生成特征中。\n\r" );
+                    ensure  =   this->gen_char(this, CHAR_BUFFER_1);
+                    if( ensure ==   0x00 ) {
+                        scic_msg( "scic: 指纹图像获取成功。\n\r" );
+                        process_num = 1;
+                    }else {
+                        scic_msg( "scic: 指纹图像获取失败,请换个角度。\n\r" );
+                        this->ensure_message( this, ensure );
+                    }
                 }else {
-                    scic_msg( "scic: 指纹图像获取失败....\n\r" );
+                    this->ensure_message(this, ensure);
+                }
+                break;
+
+            case 1:
+                scic_msg( "scic: 请再次按下指纹。\n\r" );
+                ensure = this->get_image(this);
+                if( ensure == 0x00 ) {
+                    ensure  =   this->gen_char(this, CHAR_BUFFER_2);
+                    if( ensure ==   0x00 ) {
+                        scic_msg( "scic: 采集到了指纹，等待进一步处理。\n\r" );
+                        process_num = 2;
+                    }else {
+                        this->ensure_message( this, ensure );
+                    }
+                }else {
+                    this->ensure_message(this, ensure);
+                }
+                DELAY_MS(800);
+                break;
+
+            case 2:
+                scic_msg( "scic: 正在比对采集指纹是否正确 。\n\r" );
+                ensure  =   this->match(this);
+                if( ensure == 0x00 ) {
+                    scic_msg( "scic: 指纹比对成功。\n\r" );
+                    process_num = 3;
+                }else {
+                    scic_msg( "scic: 指纹比对失败。\n\r" );
+                    process_num = 0;
+                }
+                DELAY_MS(800);
+                break;
+
+            case 3:
+
+                ensure = this->reg_model( this );
+                if( ensure == 0x00 ) {
+                    scic_msg( "scic: 生成指纹模板成功。\n\r" );
+                    process_num = 4;
+                }else {
+                    process_num = 0;
                     this->ensure_message( this, ensure );
                 }
-            }else {
-                this->ensure_message(this, ensure);
-            }
-        break;
+                DELAY_MS(800);
 
-        case 1:
-            scic_msg( "scic: 请再次按下指纹.....\n\r" );
-            ensure = this->get_image(this);
-            if( ensure == 0x00 ) {
-                ensure  =   this->gen_char(this, CHAR_BUFFER_2);
-                if( ensure ==   0x00 ) {
-                    scic_msg( "scic: 输入指纹成功....\n\r" );
-                    process_num = 2;
+                break;
+
+            case 4:
+
+                ensure  =   this->store_char( this,CHAR_BUFFER_2, id );
+                if( ensure == 0x00 ) {
+                    this->valid_templete_num( this, &this->valid_templete_num );
+                    scic_msg( "scic: 已存储指纹模板。\n\r" );
+                    return;
                 }else {
-                    this->ensure_message( this, ensure );
+                    this->ensure_message(this, ensure);
                 }
-            }else {
-                this->ensure_message(this, ensure);
+                break;
+
             }
-            DELAY_MS(800);
-        break;
-
-        case 2:
-            scic_msg( "scic: 正在比对采集指纹是否正确 ... \n\r" );
-            ensure  =   this->match(this);
-            if( ensure == 0x00 ) {
-                scic_msg( "scic: 指纹比对成功。。。!\n\r" );
-                process_num = 3;
-            }else {
-                scic_msg( "scic: 指纹比对失败...\n\r" );
-                process_num = 0;
-            }
-            DELAY_MS(800);
-        break;
-
-        case 3:
-
-            ensure = this->reg_model( this );
-            if( ensure == 0x00 ) {
-                scic_msg( "scic: 生成指纹模板成功！！\n\r" );
-                process_num = 4;
-            }else {
-                process_num = 0;
-                this->ensure_message( this, ensure );
-            }
-            DELAY_MS(800);
-
-        break;
-
-        case 4:
-
-            ensure  =   this->store_char( this,CHAR_BUFFER_2, id );
-            if( ensure == 0x00 ) {
-                this->valid_templete_num( this, &this->valid_templete_num );
-                scic_msg( "scic: 已存储指纹模板\n\r" );
-                return;
-            }else {
-                this->ensure_message(this, ensure);
-            }
-        break;
-
+            DELAY_MS(2000);
         }
-        DELAY_MS(800);
     }
 
 }
@@ -574,31 +579,29 @@ void    as608_press_finger( AS608 *this )
 {
     uint8   ensure;
     ensure  =   this->get_image( this );
+    this->ensure_message( this, ensure );
     if( ensure == 0x00 ) {
-        scic_msg( "scic:正在采集指纹图像...\n\r" );
+        scic_msg( "scic:正在采集指纹图像。\n\r" );
         ensure  =   this->gen_char( this, CHAR_BUFFER_1 );
+        this->ensure_message( this, ensure );
+
         if( ensure == 0x00 ) {
-            scic_msg( "scic:正在校验...\n\r" );
+            scic_msg( "scic:正在校验。\n\r" );
             ensure  =   this->high_speed_search( this, CHAR_BUFFER_1, 0,100, &this->search_result );
             if( ensure == 0x00 ) {
-                scic_msg( "scic:指纹匹配成功...\n\r" );
+                scic_msg( "scic:指纹匹配成功。\n\r" );
                 id_flag = true;
                 error_count = 0;
             }else {
                 error_count ++;
                 if( error_count > 3 ) {
-                    scic_msg( "scic:验证失败超过3次蜂鸣器噪起来：...\n\r" );
+                    scic_msg( "scic:验证失败超过3次蜂鸣器噪起来。\n\r" );
                     error_count = 0;
                 }else {
-                    scic_msg( "scic:校验失败，请重新按指纹，原因 如下：...\n\r" );
+                    scic_msg( "scic:校验失败，请重新按指纹，原因 如下：\n\r" );
                 }
-                this->ensure_message( this, ensure );
             }
-        }else {
-            this->ensure_message(this, ensure);
         }
-    }else {
-        this->ensure_message(this, ensure);
     }
     DELAY_US(1000);
 
@@ -611,54 +614,54 @@ uint8*    as608_ensure_message( AS608 *this ,uint8 ensure) {
 
     switch(ensure)
     {
-        case  0x00:
-            p="scic:OK\r\n";
+    case  0x00:
+        p="scic:处理中..\r\n";
 
-            break;
-        case  0x01:
-            p="scic:数据包接收错误\r\n";break;
-        case  0x02:
-            p="scic:传感器上没有手指\r\n";break;
-        case  0x03:
-            p="scic:录入指纹图像失败\r\n";break;
-        case  0x04:
-            p="scic:指纹图像太干、太淡而生不成特征\r\n";break;
-        case  0x05:
-            p="scic:指纹图像太湿、太糊而生不成特征\r\n";break;
-        case  0x06:
-            p="scic:指纹图像太乱而生不成特征\r\n";break;
-        case  0x07:
-            p="scic:指纹图像正常，但特征点太少（或面积太小）而生不成特征\r\n";break;
-        case  0x08:
-            p="scic:指纹不匹配\r\n";break;
-        case  0x09:
-            p="scic:没搜索到指纹\r\n";break;
-        case  0x0a:
-            p="scic:特征合并失败\r\n";break;
-        case  0x0b:
-            p="scic:访问指纹库时地址序号超出指纹库范围\r\n";
-        case  0x10:
-            p="scic:删除模板失败\r\n";break;
-        case  0x11:
-            p="scic:清空指纹库失败\r\n";break;
-        case  0x15:
-            p="scic:缓冲区内没有有效原始图而生不成图像\r\n";break;
-        case  0x18:
-            p="scic:读写 FLASH 出错\r\n";break;
-        case  0x19:
-            p="scic:未定义错误\r\n";break;
-        case  0x1a:
-            p="scic:无效寄存器号\r\n";break;
-        case  0x1b:
-            p="scic:寄存器设定内容错误\r\n";break;
-        case  0x1c:
-            p="scic:记事本页码指定错误\r\n";break;
-        case  0x1f:
-            p="scic:指纹库满\r\n";break;
-        case  0x20:
-            p="scic:地址错误\r\n";break;
-        default :
-            p="scic:模块返回确认码有误\r\n";break;
+        break;
+    case  0x01:
+        p="scic:数据包接收错误\r\n";break;
+    case  0x02:
+        p="scic:传感器上没有手指\r\n";break;
+    case  0x03:
+        p="scic:录入指纹图像失败\r\n";break;
+    case  0x04:
+        p="scic:指纹图像太干、太淡而生不成特征\r\n";break;
+    case  0x05:
+        p="scic:指纹图像太湿、太糊而生不成特征\r\n";break;
+    case  0x06:
+        p="scic:指纹图像太乱而生不成特征\r\n";break;
+    case  0x07:
+        p="scic:指纹图像正常，但特征点太少（或面积太小）而生不成特征\r\n";break;
+    case  0x08:
+        p="scic:指纹不匹配\r\n";break;
+    case  0x09:
+        p="scic:没搜索到指纹\r\n";break;
+    case  0x0a:
+        p="scic:特征合并失败\r\n";break;
+    case  0x0b:
+        p="scic:访问指纹库时地址序号超出指纹库范围\r\n";
+    case  0x10:
+        p="scic:删除模板失败\r\n";break;
+    case  0x11:
+        p="scic:清空指纹库失败\r\n";break;
+    case  0x15:
+        p="scic:缓冲区内没有有效原始图而生不成图像\r\n";break;
+    case  0x18:
+        p="scic:读写 FLASH 出错\r\n";break;
+    case  0x19:
+        p="scic:未定义错误\r\n";break;
+    case  0x1a:
+        p="scic:无效寄存器号\r\n";break;
+    case  0x1b:
+        p="scic:寄存器设定内容错误\r\n";break;
+    case  0x1c:
+        p="scic:记事本页码指定错误\r\n";break;
+    case  0x1f:
+        p="scic:指纹库满\r\n";break;
+    case  0x20:
+        p="scic:地址错误\r\n";break;
+    default :
+        p="scic:模块返回确认码有误\r\n";break;
     }
     scic_msg(p);
     return (uint8*)p;
