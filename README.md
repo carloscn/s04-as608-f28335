@@ -34,3 +34,20 @@
 
 ![image-20200329102902855](README/image-20200329102902855.png)
 
+## 1.4 CCS导入方法
+
+S1：从github上下载代码：
+
+![image-20200329103720184](README/image-20200329103720184.png)
+
+S2：解压下载的zip文件到桌面，接着进入CCS软件中。
+
+S3：点击CCS中project选项->import CCS Project。
+
+![image-20200329104838286](README/image-20200329104838286.png)
+
+S4：导入文件夹
+
+![image-20200329105347256](README/image-20200329105347256.png)
+
+S5：完成

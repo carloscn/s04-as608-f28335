@@ -1,0 +1,8 @@
+/DSP2833x_common/
+/DSP2833x_headers/
+/makefile
+/objects.mk
+/sources.mk
+/src/
+/subdir_rules.mk
+/subdir_vars.mk

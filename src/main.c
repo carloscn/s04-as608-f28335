@@ -6,7 +6,7 @@
 #include "global.h"
 #include "main.h"
 
-//#define             FLASH         1
+#define             FLASH         1
 
 
 // Functions that will be run from RAM need to be assigned to
