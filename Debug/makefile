@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := C:/opt/ti/ccs1000/ccs/tools/compiler/ti-cgt-c2000_20.2.0.LTS
+CG_TOOL_ROOT := C:/opt/ti/ccsv8/tools/compiler/ti-cgt-c2000_20.2.0.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -154,34 +154,34 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-S04_AS608_FINGERPRINT_F28335_CCS10.out \
+S04-AS608-FINGER-F28335-CCSV8.out \
 
 EXE_OUTPUTS__QUOTED += \
-"S04_AS608_FINGERPRINT_F28335_CCS10.out" \
+"S04-AS608-FINGER-F28335-CCSV8.out" \
 
 BIN_OUTPUTS += \
-S04_AS608_FINGERPRINT_F28335_CCS10.hex \
+S04-AS608-FINGER-F28335-CCSV8.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"S04_AS608_FINGERPRINT_F28335_CCS10.hex" \
+"S04-AS608-FINGER-F28335-CCSV8.hex" \
 
 
 # All Target
 all: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
-	@$(MAKE) --no-print-directory -Onone "S04_AS608_FINGERPRINT_F28335_CCS10.out"
+	@$(MAKE) --no-print-directory -Onone "S04-AS608-FINGER-F28335-CCSV8.out"
 
 # Tool invocations
-S04_AS608_FINGERPRINT_F28335_CCS10.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
+S04-AS608-FINGER-F28335-CCSV8.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: C2000 Linker'
-	"C:/opt/ti/ccs1000/ccs/tools/compiler/ti-cgt-c2000_20.2.0.LTS/bin/cl2000" -v28 -ml -mt -g --diag_warning=225 --diag_wrap=off --display_error_number --abi=coffabi -z -m"S04_AS608_FINGERPRINT_F28335_CCS10.map" --stack_size=0x300 --warn_sections -i"C:/opt/ti/ccs1000/ccs/tools/compiler/ti-cgt-c2000_20.2.0.LTS/lib" -i"C:/opt/ti/ccs1000/ccs/tools/compiler/ti-cgt-c2000_20.2.0.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="S04_AS608_FINGERPRINT_F28335_CCS10_linkInfo.xml" --rom_model -o "S04_AS608_FINGERPRINT_F28335_CCS10.out" $(ORDERED_OBJS)
+	"C:/opt/ti/ccsv8/tools/compiler/ti-cgt-c2000_20.2.0.LTS/bin/cl2000" -v28 -ml -mt --float_support=fpu32 -g --diag_warning=225 --diag_wrap=off --display_error_number --abi=coffabi -z -m"S04-AS608-FINGER-F28335-CCSV8.map" --stack_size=0x300 --warn_sections -i"C:/opt/ti/ccsv8/tools/compiler/ti-cgt-c2000_20.2.0.LTS/lib" -i"C:/opt/ti/ccsv8/tools/compiler/ti-cgt-c2000_20.2.0.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="S04-AS608-FINGER-F28335-CCSV8_linkInfo.xml" --rom_model -o "S04-AS608-FINGER-F28335-CCSV8.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
-S04_AS608_FINGERPRINT_F28335_CCS10.hex: $(EXE_OUTPUTS)
+S04-AS608-FINGER-F28335-CCSV8.hex: $(EXE_OUTPUTS)
 	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo 'Invoking: C2000 Hex Utility'
-	"C:/opt/ti/ccs1000/ccs/tools/compiler/ti-cgt-c2000_20.2.0.LTS/bin/hex2000"  -o "S04_AS608_FINGERPRINT_F28335_CCS10.hex" $(EXE_OUTPUTS__QUOTED)
+	"C:/opt/ti/ccsv8/tools/compiler/ti-cgt-c2000_20.2.0.LTS/bin/hex2000"  -o "S04-AS608-FINGER-F28335-CCSV8.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo ' '
 
