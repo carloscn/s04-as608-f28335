@@ -494,90 +494,89 @@ void    as608_add_finger( AS608* this )
     uint32 k;
 
     while( true ) {
-        k++;
-        if (k >= 600000) {
-            k = 0;
 
-            switch ( process_num ) {
+        switch ( process_num ) {
 
-            case 0:
-                scic_msg( "信息：请按下指纹。\n\r" );
-                ensure = this->get_image(this);
-                if( ensure == 0x00 ) {
-                    scic_msg( "信息：得到一个指纹图像，生成特征中。\n\r" );
-                    ensure  =   this->gen_char(this, CHAR_BUFFER_1);
-                    if( ensure ==   0x00 ) {
-                        scic_msg( "信息：指纹图像获取成功。\n\r" );
-                        process_num = 1;
-                    }else {
-                        scic_msg( "信息：指纹图像没有足够的特征\n\r" );
-                        this->ensure_message( this, ensure );
-                    }
+        case 0:
+
+            scic_msg( "信息：请按下指纹。\n\r" );
+            while( TOUCH !=  this->read_state( this ) );
+            ensure = this->get_image(this);
+            if( ensure == 0x00 ) {
+                scic_msg( "信息：得到一个指纹图像，生成特征中。\n\r" );
+                ensure  =   this->gen_char(this, CHAR_BUFFER_1);
+                if( ensure ==   0x00 ) {
+                    scic_msg( "信息：指纹图像获取成功。\n\r" );
+                    process_num = 1;
                 }else {
-                    this->ensure_message(this, ensure);
-                }
-                break;
-
-            case 1:
-                scic_msg( "信息：请再次按下指纹。\n\r" );
-                ensure = this->get_image(this);
-                if( ensure == 0x00 ) {
-                    ensure  =   this->gen_char(this, CHAR_BUFFER_2);
-                    if( ensure ==   0x00 ) {
-                        scic_msg( "信息：采集到了指纹等待进一步处理。\n\r" );
-                        process_num = 2;
-                    }else {
-                        this->ensure_message( this, ensure );
-                    }
-                }else {
-                    this->ensure_message(this, ensure);
-                }
-                DELAY_MS(800);
-                break;
-
-            case 2:
-                scic_msg( "信息：正在比对采集指纹是否正确 。\n\r" );
-                ensure  =   this->match(this);
-                if( ensure == 0x00 ) {
-                    scic_msg( "信息：指纹录入中。\n\r" );
-                    process_num = 3;
-                }else {
-                    scic_msg( "信息：指纹录入失败。\n\r" );
-                    process_num = 0;
-                }
-                DELAY_MS(800);
-                break;
-
-            case 3:
-
-                ensure = this->reg_model( this );
-                if( ensure == 0x00 ) {
-                    scic_msg( "信息：生成指纹模板成功。\n\r" );
-                    process_num = 4;
-                }else {
-                    process_num = 0;
+                    scic_msg( "信息：指纹图像没有足够的特征\n\r" );
                     this->ensure_message( this, ensure );
                 }
-                DELAY_MS(800);
+            }else {
+                this->ensure_message(this, ensure);
+            }
+            break;
 
-                break;
-
-            case 4:
-
-                ensure  =   this->store_char( this,CHAR_BUFFER_2, id );
-                if( ensure == 0x00 ) {
-                    this->valid_templete_num( this, &this->valid_templete_num );
-                    scic_msg( "信息：已存储指纹模板。\n\r" );
-                    return;
+        case 1:
+            scic_msg( "信息：请再次按下指纹。\n\r" );
+            while( TOUCH !=  this->read_state( this ) );
+            ensure = this->get_image(this);
+            if( ensure == 0x00 ) {
+                ensure  =   this->gen_char(this, CHAR_BUFFER_2);
+                if( ensure ==   0x00 ) {
+                    scic_msg( "信息：采集到了指纹等待进一步处理。\n\r" );
+                    process_num = 2;
                 }else {
-                    this->ensure_message(this, ensure);
+                    this->ensure_message( this, ensure );
                 }
-                break;
-
+            }else {
+                this->ensure_message(this, ensure);
             }
             DELAY_MS(2000);
+            break;
+
+        case 2:
+            scic_msg( "信息：正在比对采集指纹是否正确 。\n\r" );
+            ensure  =   this->match(this);
+            if( ensure == 0x00 ) {
+                scic_msg( "信息：指纹录入中。\n\r" );
+                process_num = 3;
+            }else {
+                scic_msg( "信息：指纹录入失败。\n\r" );
+                process_num = 0;
+            }
+            DELAY_MS(2000);
+            break;
+
+        case 3:
+            ensure = this->reg_model( this );
+            if( ensure == 0x00 ) {
+                scic_msg( "信息：生成指纹模板成功。\n\r" );
+                process_num = 4;
+            }else {
+                process_num = 0;
+                this->ensure_message( this, ensure );
+            }
+            DELAY_MS(2000);
+
+            break;
+
+        case 4:
+
+            ensure  =   this->store_char( this,CHAR_BUFFER_2, id );
+            if( ensure == 0x00 ) {
+                this->valid_templete_num( this, &this->valid_templete_num );
+                scic_msg( "信息：已存储指纹模板。\n\r" );
+                return;
+            }else {
+                this->ensure_message(this, ensure);
+            }
+            break;
+
         }
+
     }
+
 
 }
 extern uint16  error_count;
@@ -585,6 +584,7 @@ extern Uint16 id_flag;
 void    as608_press_finger( AS608 *this )
 {
     uint8   ensure;
+
     ensure  =   this->get_image( this );
     this->ensure_message( this, ensure );
     if( ensure == 0x00 ) {

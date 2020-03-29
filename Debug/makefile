@@ -38,8 +38,8 @@ ORDERED_OBJS += \
 "./src/as608.obj" \
 "./src/main.obj" \
 "./src/sci.obj" \
+"../28335_RAM_lnk.cmd" \
 "../DSP2833x_Headers_nonBIOS.cmd" \
-"../F28335_FLASH_lnk.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
 
